@@ -114,52 +114,7 @@ async function processDirectory(dir: string, commits: LocalCommit[] | PartialCom
 }
 
 async function checkCommits(commits: LocalCommit[] | PartialCommitResponse[], version: string) {
-  return true
-  try {
-    info(`::group::Searching in ${commits.length} commit${commits.length == 1 ? '' : 's'}...`)
-    info(`Package file name: "${packageFileName}"`)
-    info(`Package file URL: ${packageFileURL ? `"${packageFileURL}"` : 'undefined'}`)
-    info(`Version assumptions: ${assumeSameVersion ? `"${assumeSameVersion}"` : 'undefined'}`)
-    for (const commit of commits) {
-      const { message, sha } = getBasicInfo(commit)
-      const match = message.match(semverRegex()) || []
-      if (match.includes(version)) {
-        if (await checkDiff(sha, version)) {
-          info('::endgroup::')
-          info(`Found match for version ${version}: ${sha.substring(0, 7)} ${message}`)
-          return true
-        }
-      }
-    }
-    info('::endgroup::')
-
-    if (getInput('diff-search')) {
-      info('No standard npm version commit found, switching to diff search (this could take more time...)')
-
-      if (!isLocalCommitArray(commits)) {
-        commits = commits.sort((a, b) =>
-          (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime()
-        )
-      }
-
-      info(`::group::Checking the diffs of ${commits.length} commit${commits.length == 1 ? '' : 's'}...`)
-      for (const commit of commits) {
-        const { message, sha } = getBasicInfo(commit)
-
-        if (await checkDiff(sha, version)) {
-          info('::endgroup::')
-          info(`Found match for version ${version}: ${sha.substring(0, 7)} - ${message}`)
-          return true
-        }
-      }
-    }
-
-    info('::endgroup::')
-    info('No matching commit found.')
-    return false
-  } catch (e) {
-    setFailed(`${e}`)
-  }
+  return true;
 }
 
 function getBasicInfo(commit: LocalCommit | PartialCommitResponse) {
@@ -267,6 +222,7 @@ class NeutralExitError extends Error { }
 if (require.main == module) {
   info('Searching for version update...')
   main().catch(e => {
+    console.log(e);
     if (e instanceof NeutralExitError) process.exitCode = 78
     else {
       process.exitCode = 1
