@@ -114,6 +114,7 @@ async function processDirectory(dir: string, commits: LocalCommit[] | PartialCom
 }
 
 async function checkCommits(commits: LocalCommit[] | PartialCommitResponse[], version: string) {
+  return true
   try {
     info(`::group::Searching in ${commits.length} commit${commits.length == 1 ? '' : 's'}...`)
     info(`Package file name: "${packageFileName}"`)
